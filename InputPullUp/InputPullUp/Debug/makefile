@@ -54,7 +54,7 @@ all: InputPullUp.elf secondary-outputs
 InputPullUp.elf: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross ARM C++ Linker'
-	arm-none-eabi-g++ -mcpu=cortex-m0plus -mthumb -O0 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -Wall  -g3 -T "MKL25Z128xxx4_flash.ld" -Xlinker --gc-sections -L"C:/Users/thiag/Dropbox/Thiago Pereira - Fapemig 2018/KL25Z/Exemplos/InputPullUp/InputPullUp/Project_Settings/Linker_Files" -Wl,-Map,"InputPullUp.map" -specs=nosys.specs -specs=nano.specs -Xlinker -z -Xlinker muldefs -o "InputPullUp.elf" $(OBJS) $(USER_OBJS) $(LIBS)
+	arm-none-eabi-g++ -mcpu=cortex-m0plus -mthumb -O0 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -Wall  -g3 -T "MKL25Z128xxx4_flash.ld" -Xlinker --gc-sections -L"C:/Users/thiag/Dropbox/IC/KL25Z/Exemplos/InputPullUp/InputPullUp/Project_Settings/Linker_Files" -Wl,-Map,"InputPullUp.map" -specs=nosys.specs -specs=nano.specs -Xlinker -z -Xlinker muldefs -o "InputPullUp.elf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
