@@ -26,7 +26,7 @@
 #define PT_C1 15
 
 void adcInit();
-uint16_t acdRead(uint16_t port);
+uint16_t adcRead(uint16_t port);
 
 
 #endif
