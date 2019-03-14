@@ -34,17 +34,22 @@
 /******************************************************************************
  * Includes
  *****************************************************************************/
+#include "FreeRTOS.h"
+#include "task.h"
+#include "queue.h"
+#include "semphr.h"
+#include "sistemaDinamico.h"
+
 #include "gpio_x.h"
 #include "serialProtocol.h"
+#include "adc.h"
+#include "dac.h"
 
 #include "usb_device_config.h"
 #include "usb.h"
 #include "usb_device_stack_interface.h"
 #include "virtual_com.h"
 
-#include "FreeRTOS.h"
-#include "task.h"
-#include "queue.h"
 
 #if (OS_ADAPTER_ACTIVE_OS == OS_ADAPTER_SDK)
 #include "fsl_device_registers.h"
@@ -126,7 +131,8 @@ extern usb_desc_request_notify_struct_t desc_callback;
 extern uint8_t USB_Desc_Set_Speed(uint32_t handle, uint16_t speed);
 cdc_handle_t g_app_handle;
 
-static coeficientes diffAtual, diffTemp;
+xQueueHandle receiveQueue = NULL;
+TaskHandle_t handleSist = NULL;
 
 /*****************************************************************************
  * Local Types - None
@@ -644,20 +650,60 @@ uint8_t USB_App_Class_Callback
     return error;
 }
 
-xQueueHandle Global_Queue = NULL;
+#define ms(arg) (arg*configTICK_RATE_HZ)/1000 //Ou arg/portTICK_PERIOD_MS
+#define us(arg) (arg*configTICK_RATE_HZ)/1000000 //Ou arg/(portTICK_PERIOD_MS*1000)
+
+void sistema (void *p){
+
+	TickType_t xLastWakeTime;
+	uint16_t ts;
+
+	xLastWakeTime = xTaskGetTickCount();
+
+	initSist();
+
+	adcInit();
+	dacInit();
+
+	PORTB_Mode(1, OUTPUT);
+
+	while(1){
+		ts = getTime();
+		if (ts > 0){
+			vTaskDelayUntil(&xLastWakeTime, us(ts));
+		}
+		else{
+			vTaskDelayUntil(&xLastWakeTime, ms(500));
+		}
+		PORTB_Write(1, HIGH);
+		//Correcao
+		dacWrite(calculaSist(adcRead(PT_B0)>>4)); //Reduz os 16 bits do ADC para os 12 bits do DAC
+		PORTB_Write(1, LOW);
+
+
+	}
+}
 
 void usb_comm (void * p){
-	Global_Queue = xQueueCreate(2, sizeof(xMessage));
-	//Protocolo Serial
-	static uint8_t init = 0;
+	uint8_t init = 0;
+	
 	xMessage mensagem;
 	mensagem.position = 0;
 
 	APP_init();
+	receiveQueue = xQueueCreate(2, sizeof(xMessage));
+
+	TickType_t xLastWakeTime;
+	xLastWakeTime = xTaskGetTickCount();
+
+
 
 	while(1){
 
+		vTaskDelayUntil(&xLastWakeTime, ms(100));
+		//PORTB_Write(1, HIGH);
 		USB_CDC_Periodic_Task();
+
 
 		if ((g_recv_size != 0) && (g_recv_size != 0xFFFFFFFF)){
 
@@ -665,7 +711,6 @@ void usb_comm (void * p){
 
 			for (i = 0; i < g_recv_size; i++){
 				g_curr_send_buf[g_send_size++] = g_curr_recv_buf[i];
-
 				//Process
 
 				if (g_curr_recv_buf[i] == '@'){
@@ -677,7 +722,7 @@ void usb_comm (void * p){
 					if (init){
 						init = 0;
 						mensagem.data[mensagem.position] = 0;
-						xQueueSend(Global_Queue, &mensagem, 500); //Mensagem pronta para ser interpretada
+						xQueueSend(receiveQueue, &mensagem, 500);
 					}
 					init = 0;
 					continue;
@@ -708,137 +753,149 @@ void usb_comm (void * p){
 				}
 			}
 		}
-		//vTaskDelay(500 / portTICK_PERIOD_MS);
 	}
 }
 
-void interpret_task(void *p){
+void interpret(void *p){
 	coeficientes tempDiff;
-	coefInit(&tempDiff);
-
 	xMessage mensagem;
+
 	while(1){
-		//TODO esperar pro resto da vida -> portMAX_DELAY -> https://goo.gl/s5EVvR -> https://www.freertos.org/a00118.html
+		//TODO esperar pro resto da vida -> portMAX_DELAY -> https://www.freertos.org/a00118.html
+		uint32_t i;
+		if (xQueueReceive(receiveQueue, &mensagem, portMAX_DELAY)){
+			//PORTB_Write(1, HIGH);
+			if ((mensagem.data[0] == 'n') && (mensagem.data[1] == ',')){ //Byte de entrada
+				int atual = 0, inicio = 2, flag_d = 0;
 
-		if (xQueueReceive(Global_Queue, &mensagem, portMAX_DELAY)){
-			if ((mensagem.data[0] == 'e') && (mensagem.data[1] == ',')){ //Byte de entrada
-			int atual = 0, inicio = 2, i, flag_s = 0;
-
-			for (i = 2; i < mensagem.position; i++){ //Procura a virgula
-				if (mensagem.data[i] == 's'){ //Byte de saida
-					if (flag_s) //s duas vezes
-						break;
-					if (mensagem.data[i+1] == ','){
-						atual = 0;
-						flag_s = 1;
-						inicio = i+2;
-						i++;
-						continue;
+				for (i = 2; i < mensagem.position; i++){ //Procura a virgula
+					if (mensagem.data[i] == 'd'){ //Byte de saida
+						if (flag_d) //d duas vezes
+							break;
+						if (mensagem.data[i+1] == ','){
+							atual = 0;
+							flag_d = 1;
+							inicio = i+2;
+							i++;
+							continue;
+						}
+						break; //Erro (faltou a virgula)
 					}
-					break; //Erro (faltou a virgula)
-					}
-					if(!flag_s){ //Coeficientes de entrada
+					if(!flag_d){ //Coeficientes do numerador
 						if (mensagem.data[i] == ','){
 							tempDiff.in[atual] = string_to_float(mensagem.data, inicio, i);
-							if (tempDiff.in[atual] == -1)
+							if (tempDiff.in[atual] == ERRO)
 								break;
 							atual++;
 							inicio = i + 1;
 							tempDiff.ultimoIn = atual;
 						}
 					}
-					else{ //Coeficientes de saida
+					else{ //Coeficientes do denominador
 						if (mensagem.data[i] == ','){
 							tempDiff.out[atual] = string_to_float(mensagem.data, inicio, i);
-							if (tempDiff.out[atual] == -1)
+							if (tempDiff.out[atual] == ERRO)
 								break;
 							atual++;
 							inicio = i + 1;
 							tempDiff.ultimoOut = atual;
 							if (mensagem.data[i+1] == 't'){ //Tempo de amostragem
 								if (mensagem.data[i+2] == ','){
-									tempDiff.amostragem = string_to_float(mensagem.data, i+3, mensagem.position-1);
-									if (tempDiff.amostragem > 0){
-										PORTB_Write(19, LOW);
-										//Mutex Eq. Diff.
-										//return DIFF;
-									}
-									else{
-										break;
+									float aux;
+									aux = string_to_float(mensagem.data, i+3, mensagem.position);
+									if ((aux > 0)&&(aux != ERRO)){
+										tempDiff.amostragem = (uint32_t)(aux*1000); //transforma ms em us
+										setDiff(&tempDiff);
 									}
 								}
-								else{
-									break;
-								}
+								break;
 							}
 						}
 					}
 				}
-				//return 0;
 				//Erro
 			}
-			if ((mensagem.data[0] == 'p') && (mensagem.data[1] == 'i')&&(mensagem.data[2] == 'd') && (mensagem.data[3] == ',')){
+			if ((mensagem.data[0] == 'p') && (mensagem.data[1] == 'i') && (mensagem.data[2] == 'd') && (mensagem.data[3] == ',')){
+				double kp = 0, kd = 0, ki = 0;
+				int32_t	ta = 50;
+				uint32_t j = 0, inicio = 0;
+				for (i = 4; i<mensagem.position; i++){
+					if (mensagem.data[i] == ','){
+						if (j == 0){
+							kd = string_to_float(mensagem.data, 4, i);
+							if (kd == ERRO){
+									PORTB_Write(19, HIGH);
+								break;
+							}
+							inicio = i+1;
+						}
+						if (j == 1){
+							kp = string_to_float(mensagem.data, inicio, i);
+							if (kp == ERRO){
+								PORTB_Write(19, HIGH);
+								break;
+							}
+							inicio = i+1;
+						}
+						if (j == 2){
+							ki = string_to_float(mensagem.data, inicio, i);
+							if (ki == ERRO){
+								PORTB_Write(19, HIGH);
+								break;
+							}
+							inicio = i+1;
+						}
+						j++;
+					}
+					
+				}
+				ta = string_to_float(mensagem.data, inicio, mensagem.position);
+				if ((ta != ERRO )&&(ta > 0)){
+					setPID(kd, kp, ki, ta); //ta em ms
+				}
+				else{
+					PORTB_Write(19, HIGH);
+				}
 
 			}
-			uint8_t txt [] = "print";
-			int i;
-			for (i = 0; i<5; i++){
-				if (mensagem.data[i] != txt[i]){
-					break;
+			if ((mensagem.data[0] == 's') && (mensagem.data[1] == 'p')&&(mensagem.data[2] == ',')&&(mensagem.position <= 7)){ //sp,4095
+				int32_t setPoint = 0;
+				for (i = 3; i< mensagem.position; i++){
+					if ((mensagem.data[i] >= '0')&&(mensagem.position <= '9')){
+						setPoint*=10;
+						setPoint += (mensagem.data[i]-'0');
+					}
+					else{
+						setPoint = 0;
+						break;
+					}
+				}
+				if((mensagem.data[3] == '-')&&(mensagem.data[4] == '1')){
+					i = 5;
+					setPoint = -1;
+				}
+				if (i == mensagem.position){
+					setSP(setPoint);
 				}
 			}
-			if (i == 5){
-				//Mutex Print Eq. Diff.
-				//return PRINTDIFF;
+			if ((mensagem.data[0] == 's') && (mensagem.data[1] == 't')&&(mensagem.data[2] == 'a') && (mensagem.data[3] == 'r') && (mensagem.data[4] == 't') && (mensagem.position == 5)){
+				setStart(1);
+				vTaskResume(handleSist);
 			}
+			if ((mensagem.data[0] == 's') && (mensagem.data[1] == 't')&&(mensagem.data[2] == 'o') && (mensagem.data[3] == 'p') && (mensagem.position == 4)){
+				setStart(0);
+				dacWrite(0);
+				//TODO Suspende o sistema
+				vTaskSuspend(handleSist);
 
-			//return 0;
-			//Erro
+			}
 		}
-
 	}
 }
 
-/*
-void pid (void *p){
-	int kp, ki, kd;
-	int ta;
-
-	TickType_t xLastWakeTime;
-	 // Initialise the xLastWakeTime variable with the current time.
-	 xLastWakeTime = xTaskGetTickCount ();
-
-	 while(1){
-		 // Wait for the next cycle.
-		 vTaskDelayUntil( &xLastWakeTime, ta/ portTICK_PERIOD_MS);
-
-		 // Perform action here.
-	 }
- }
-
-}
-*/
-
-#define ms(arg) (1000*arg)/portTICK_PERIOD_uS //Ou (arg*configTICK_RATE_HZ)/1000
-#define us(arg) arg/portTICK_PERIOD_uS //Ou (arg*configTICK_RATE_HZ)/1000000
-
-void blink (void *p){
-	TickType_t xLastWakeTime;
-	xLastWakeTime = xTaskGetTickCount ();
-	uint8_t flag = 0;
+void idle (void *p){
 	while(1){
-		vTaskDelayUntil( &xLastWakeTime, ms(3));
-		PORTB_Write(0, flag);
-		flag = !flag;
-
-
-		/*vTaskDelay(500/portTICK_PERIOD_MS);
-		PORTB_Write(0, LOW);
-		PORTB_Write(18, LOW);
-		vTaskDelay(500/portTICK_PERIOD_MS);
-		PORTB_Write(0, HIGH);
-		PORTB_Write(18, HIGH);
-		*/
+		PORTB_Write(1, LOW);
 	}
 }
 
@@ -869,23 +926,11 @@ void main(void)
     hardware_init();
     dbg_uart_init();
 
-    PORTB_Mode(18, OUTPUT);
-    PORTB_Write(18, HIGH);
-    PORTB_Mode(19, OUTPUT);
-    PORTB_Write(19, HIGH);
-
-    PORTB_Mode(0, OUTPUT);
-
-    coefInit(&diffAtual);
-    coefInit(&diffTemp);
-
-    
-
-    xTaskCreate(usb_comm, "usb_comm_task", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY+1, NULL);
-    xTaskCreate(interpret_task, "interpret_task", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY+2, NULL);
-    xTaskCreate(blink, "blink", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY+3, NULL);
+    xTaskCreate(sistema, "sistema_task", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY+1, &handleSist);
+    xTaskCreate(usb_comm, "usb_comm_task", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY+3, NULL);
+    xTaskCreate(interpret, "interpret_task", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY+2, NULL);
+    //xTaskCreate(idle, "idle_task", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL);
     //IDLE -> Task com menor prioridade
-
     vTaskStartScheduler();
 
 #if (!defined(FSL_RTOS_MQX))&(defined(__CC_ARM) || defined(__GNUC__))
