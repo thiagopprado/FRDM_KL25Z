@@ -28,16 +28,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-//#include "adc.h"
-//#include "dac.h"
+#include "adc.h"
+#include "dac.h"
 #include <MKL25Z4.h>
 int main(void){
-	USB0->STAT
-	//adcInit();
-	//dacInit();
+	adcInit();
+	dacInit();
 
 	for (;;) {
-    	//dacWrite(adcRead(PT_B0)/16);
+    	dacWrite(adcRead(PT_B0)/16);
     }
     return 0;
 }
