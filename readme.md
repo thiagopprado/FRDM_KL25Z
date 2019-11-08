@@ -1,1 +1,3 @@
-Projetos utilizando os periféricos da placa FRDM KL25Z
+Projects using the FRDM KL25Z development kit.
+
+Projetos utilizando o kit de desenvolvimento FRDM KL25Z.
