@@ -1,3 +1,5 @@
-Controlled DC motor position using pwm signal and H Bridge.
+MCUXpresso project.
 
-Controle de posição de um motor DC usando sinal PWM e Ponte H.
+Controlled DC motor position using pwm signal, H Bridge and PID.
+
+Controle de posição de um motor DC usando sinal PWM, Ponte H e PID.
