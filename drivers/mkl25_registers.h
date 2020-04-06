@@ -10,7 +10,7 @@
 
 #include <stdint.h>
 
-/** Port control and interrupts - Chapter 11 */
+/** Port Control and Interrupts - Chapter 11 */
 typedef struct {
     volatile uint32_t PCR[32];      /**< Pin Control Register (R/W) */
     volatile uint32_t GPCLR;        /**< Global Pin Control Low Register (W) */
@@ -25,7 +25,7 @@ typedef struct {
 #define PORTD   ((PORT_p)0x4004C000u)
 #define PORTE   ((PORT_p)0x4004D000u)
 
-/** System integration module - Chapter 12 */
+/** System Integration Module - Chapter 12 */
 typedef struct {
     volatile uint32_t SOPT1;        /**< System Options Register 1 (R/W) */
     volatile uint32_t SOPT1CFG;     /**< System Configuration Register 1 (R/W) */
@@ -57,5 +57,23 @@ typedef struct {
 } SIM_t, *SIM_p;
 
 #define SIM     ((SIM_p)0x40047000u)
+
+/** General-Purpose Input/Output (GPIO) - Chapter 41 */
+typedef struct {
+    volatile uint32_t PDOR;         /**< Port Data Output Register (R/W) */
+    volatile uint32_t PSOR;         /**< Port Set Output Register (W) */
+    volatile uint32_t PCOR;         /**< Port Clear Output Register (W) */
+    volatile uint32_t PTOR;         /**< Port Toggle Output Register (W) */
+    volatile const uint32_t PDIR;   /**< Port Data Input Register (R) */
+    volatile uint32_t PDDR;         /**< Port Data Direction Register (R/W) */
+} GPIO_t, *GPIO_p;
+
+#define GPIOA     ((GPIO_p)0x400FF000u)
+#define GPIOB     ((GPIO_p)0x400FF040u)
+#define GPIOC     ((GPIO_p)0x400FF080u)
+#define GPIOD     ((GPIO_p)0x400FF0C0u)
+#define GPIOE     ((GPIO_p)0x400FF100u)
+
+
 
 #endif /* MKL25_REGISTERS_H */
