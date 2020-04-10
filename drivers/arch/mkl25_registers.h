@@ -19,11 +19,17 @@ typedef struct {
     volatile uint32_t ISFR;         /**< Interrupt Status Flag Register (R/W) */
 } PORT_t, *PORT_p;
 
-#define PORTA   ((PORT_p)0x40049000u)
-#define PORTB   ((PORT_p)0x4004A000u)
-#define PORTC   ((PORT_p)0x4004B000u)
-#define PORTD   ((PORT_p)0x4004C000u)
-#define PORTE   ((PORT_p)0x4004D000u)
+#define PORTA_base  0x40049000u
+#define PORTB_base  0x4004A000u
+#define PORTC_base  0x4004B000u
+#define PORTD_base  0x4004C000u
+#define PORTE_base  0x4004D000u
+
+#define PORTA   	((PORT_p)PORTA_base)
+#define PORTB   	((PORT_p)PORTB_base)
+#define PORTC   	((PORT_p)PORTC_base)
+#define PORTD   	((PORT_p)PORTD_base)
+#define PORTE   	((PORT_p)PORTE_base)
 
 /** System Integration Module - Chapter 12 */
 typedef struct {
@@ -56,7 +62,8 @@ typedef struct {
     volatile uint32_t SRVCOP;       /**< Service COP Register (W) */
 } SIM_t, *SIM_p;
 
-#define SIM     ((SIM_p)0x40047000u)
+#define SIM_base 	0x40047000u
+#define SIM     	((SIM_p)SIM_base)
 
 /** General-Purpose Input/Output (GPIO) - Chapter 41 */
 typedef struct {
@@ -68,10 +75,16 @@ typedef struct {
     volatile uint32_t PDDR;         /**< Port Data Direction Register (R/W) */
 } GPIO_t, *GPIO_p;
 
-#define GPIOA     ((GPIO_p)0x400FF000u)
-#define GPIOB     ((GPIO_p)0x400FF040u)
-#define GPIOC     ((GPIO_p)0x400FF080u)
-#define GPIOD     ((GPIO_p)0x400FF0C0u)
-#define GPIOE     ((GPIO_p)0x400FF100u)
+#define GPIOA_base  0x400FF000u
+#define GPIOB_base  0x400FF040u
+#define GPIOC_base  0x400FF080u
+#define GPIOD_base  0x400FF0C0u
+#define GPIOE_base  0x400FF100u
+
+#define GPIOA       ((GPIO_p)GPIOA_base)
+#define GPIOB       ((GPIO_p)GPIOB_base)
+#define GPIOC       ((GPIO_p)GPIOC_base)
+#define GPIOD       ((GPIO_p)GPIOD_base)
+#define GPIOE       ((GPIO_p)GPIOE_base)
 
 #endif /* MKL25_REGISTERS_H */

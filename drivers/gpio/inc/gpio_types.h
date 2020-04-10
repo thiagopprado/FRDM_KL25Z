@@ -30,4 +30,12 @@ typedef enum {
     GPIO_VALUE_INVALID,
 } gpio_value_t;
 
+typedef enum {
+    GPIO_PORTA = 0,
+    GPIO_PORTB,
+    GPIO_PORTC,
+    GPIO_PORTD,
+    GPIO_PORTE,
+} gpio_port_t;
+
 #endif /* GPIO_TYPES_H */
