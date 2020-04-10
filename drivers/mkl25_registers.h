@@ -74,6 +74,4 @@ typedef struct {
 #define GPIOD     ((GPIO_p)0x400FF0C0u)
 #define GPIOE     ((GPIO_p)0x400FF100u)
 
-
-
 #endif /* MKL25_REGISTERS_H */
