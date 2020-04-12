@@ -59,10 +59,8 @@ gpio_err_t gpio_mode(gpio_port_t gpio_port, gpio_mode_t mode, uint8_t pin) {
             return GPIO_ERR_INVALID_PORT;
     }
 
-    port_ptr->PCR[pin] &= ~PCR_MUX_RESET;
-    port_ptr->PCR[pin] |= PCR_MUX_GPIO;
+    port_ptr->PCR[pin] = (port_ptr->PCR[pin] & ~PCR_MUX_RESET) | PCR_MUX_GPIO;
 
-    port_ptr->PCR[pin] &= ~PCR_PULL_RESET;
 
     switch (mode) {
         case GPIO_MODE_OUTPUT:
@@ -73,11 +71,11 @@ gpio_err_t gpio_mode(gpio_port_t gpio_port, gpio_mode_t mode, uint8_t pin) {
             break;
         case GPIO_MODE_INPUT_PULL_UP:
             gpio_ptr->PDDR &= ~(1 << pin);
-            port_ptr->PCR[pin] |= PCR_PULL_UP;
+            port_ptr->PCR[pin] |= (port_ptr->PCR[pin] & ~PCR_PULL_RESET) | PCR_PULL_UP;
             break;
         case GPIO_MODE_INPUT_PULL_DOWN:
             gpio_ptr->PDDR &= ~(1 << pin);
-            port_ptr->PCR[pin] |= PCR_PULL_DOWN;
+            port_ptr->PCR[pin] |= (port_ptr->PCR[pin] & ~PCR_PULL_RESET) | PCR_PULL_DOWN;
             break;
         default:
             return GPIO_MODE_INVALID;
