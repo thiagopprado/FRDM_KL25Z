@@ -65,6 +65,60 @@ typedef struct {
 #define SIM_base 	0x40047000u
 #define SIM     	((SIM_p)SIM_base)
 
+/** Multipurpose Clock Generator (MCG) - Chapter 24 */
+typedef struct {
+    volatile uint8_t C1;            /**< MCG Control 1 Register, offset: 0x0 */
+    volatile uint8_t C2;            /**< MCG Control 2 Register, offset: 0x1 */
+    volatile uint8_t C3;            /**< MCG Control 3 Register, offset: 0x2 */
+    volatile uint8_t C4;            /**< MCG Control 4 Register, offset: 0x3 */
+    volatile uint8_t C5;            /**< MCG Control 5 Register, offset: 0x4 */
+    volatile uint8_t C6;            /**< MCG Control 6 Register, offset: 0x5 */
+    volatile uint8_t S;             /**< MCG Status Register, offset: 0x6 */
+    uint8_t RESERVED_0[1];
+    volatile uint8_t SC;            /**< MCG Status and Control Register, offset: 0x8 */
+    uint8_t RESERVED_1[1];
+    volatile uint8_t ATCVH;         /**< MCG Auto Trim Compare Value High Register, offset: 0xA */
+    volatile uint8_t ATCVL;         /**< MCG Auto Trim Compare Value Low Register, offset: 0xB */
+    volatile const uint8_t C7;      /**< MCG Control 7 Register, offset: 0xC */
+    volatile uint8_t C8;            /**< MCG Control 8 Register, offset: 0xD */
+    volatile const uint8_t C9;      /**< MCG Control 9 Register, offset: 0xE */
+    volatile const uint8_t C10;     /**< MCG Control 10 Register, offset: 0xF */
+} MCG_t, *MCG_p;
+
+#define MCG_base  0x40064000u
+#define MCG       ((MCG_p)MCG_base)
+
+/** Oscillator (OSC) - Chapter 25 */
+typedef struct {
+    volatile uint8_t CR;            /**< OSC Control Register (R/W) */
+} OSC_t, *OSC_p;
+
+#define OSC0_base 0x40065000u
+#define OSC0      ((OSC_p)OSC0_base)
+
+/** Timer/PWM Module (TPM) - Chapter 31 */
+typedef struct {
+    volatile uint32_t SC;           /**< Status and Control (R/W) */
+    volatile uint32_t CNT;          /**< Counter (R/W) */
+    volatile uint32_t MOD;          /**< Modulo (R/W) */
+    struct {
+        volatile uint32_t CnSC;     /**< Channel Statis and Control (R/W) */
+        volatile uint32_t CnV;      /**< Channel Value (R/W) */
+    } CONTROLS[6];                  /**< Six Channels Registers */
+    uint8_t RESERVED_0[20];
+    volatile uint32_t STATUS;       /**< Capture and Compare Status (R/W) */
+    uint8_t RESERVED_1[48];
+    volatile uint32_t CONF;         /**< Configuration (R/W) */
+} TPM_t, *TPM_p;
+
+#define TPM0_base  0x40038000u
+#define TPM1_base  0x40039000u
+#define TPM2_base  0x4003A000u
+
+#define TPM0       ((TPM_p)TPM0_base)
+#define TPM1       ((TPM_p)TPM1_base)
+#define TPM2       ((TPM_p)TPM2_base)
+
 /** General-Purpose Input/Output (GPIO) - Chapter 41 */
 typedef struct {
     volatile uint32_t PDOR;         /**< Port Data Output Register (R/W) */
