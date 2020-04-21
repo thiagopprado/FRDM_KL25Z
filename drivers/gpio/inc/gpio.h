@@ -8,7 +8,7 @@
 #ifndef GPIO_H
 #define GPIO_H
 
-#include <string.h>
+#include <stdlib.h>
 #include "mkl25_registers.h"
 #include "gpio_types.h"
 
