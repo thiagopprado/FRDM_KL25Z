@@ -119,6 +119,28 @@ typedef struct {
 #define TPM1       ((TPM_p)TPM1_base)
 #define TPM2       ((TPM_p)TPM2_base)
 
+/** Inter-Integrated Circuit (I2C) - Chapter 38 */
+typedef struct {
+    volatile uint8_t A1;           /**< Address Register 1 (R/W) */
+    volatile uint8_t F;            /**< Frequency Divider (R/W) */
+    volatile uint8_t C1;           /**< Control Register 1 (R/W) */
+    volatile uint8_t S;            /**< Status Register (R/W) */
+    volatile uint8_t D;            /**< Data I/O Register (R/W) */
+    volatile uint8_t C2;           /**< Control Register 2 (R/W) */
+    volatile uint8_t FLT;          /**< Programmable Input Glitch Filter Register (R/W) */
+    volatile uint8_t RA;           /**< Range Address Register (R/W) */
+    volatile uint8_t SMB;          /**< SMBus Control and Status Register (R/W) */
+    volatile uint8_t A2;           /**< Address Register 2 (R/W) */
+    volatile uint8_t SLTH;         /**< SCL Low Timeout Register High (R/W) */
+    volatile uint8_t SLTL;         /**< SCL Low Timeout Register Low (R/W) */
+} I2C_t, *I2C_p;
+
+#define I2C0_base  0x40066000u
+#define I2C1_base  0x40067000u
+
+#define I2C0       ((I2C_p)I2C0_base)
+#define I2C1       ((I2C_p)I2C1_base)
+
 /** General-Purpose Input/Output (GPIO) - Chapter 41 */
 typedef struct {
     volatile uint32_t PDOR;         /**< Port Data Output Register (R/W) */
