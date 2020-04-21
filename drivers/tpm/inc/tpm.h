@@ -8,7 +8,7 @@
 #ifndef TPM_H
 #define TPM_H
 
-#include <string.h>
+#include <stdlib.h>
 #include "mkl25_registers.h"
 #include "tpm_types.h"
 
