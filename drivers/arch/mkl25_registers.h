@@ -9,6 +9,7 @@
 #define MKL25_REGISTERS_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 /** Port Control and Interrupts - Chapter 11 */
 typedef struct {
