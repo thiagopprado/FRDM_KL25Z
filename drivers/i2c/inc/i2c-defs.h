@@ -10,10 +10,15 @@
 
 #define SCGC4_I2C0_POS      (1 << 6)
 #define SCGC4_I2C1_POS      (1 << 7)
+
+#define I2C_S_BUS_BUSY      (1 << 5)
 #define I2C_C1_ENABLE       0x80
 #define I2C_START           0x30            // Master + Transmit = START
 #define I2C_WAIT            0x02
 #define I2C_STOP            (~I2C_START)    // Slave + Receive = STOP
+
+#define I2C_RECEIVE         (1 << 4)
+#define I2C_RPT_START       (1 << 2)
 
 #ifndef PCR_MUX_POS
     #define PCR_MUX_POS     8

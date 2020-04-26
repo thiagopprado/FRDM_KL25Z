@@ -22,8 +22,11 @@ typedef enum {
 
 typedef struct {
     uint8_t i2c_addr;
-    uint8_t* message;
-    uint8_t size;
+    uint8_t* tx_data;
+    uint8_t tx_size;
+    bool read;
+    uint8_t* rx_data;
+    uint8_t rx_size;
 } i2c_msg_t;
 
 #endif /* I2C_TYPES_H */

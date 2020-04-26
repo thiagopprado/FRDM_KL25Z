@@ -26,9 +26,12 @@ i2c_err_t i2c_setup(i2c_mod_t i2c_mod, uint8_t f_divider) {
 i2c_err_t i2c_write(I2C_p i2c_ptr, i2c_msg_t* i2c_msg) {
     uint8_t i = 0;
 
-    if (i2c_ptr == NULL || i2c_msg == NULL || i2c_msg->size == 0) {
+    if (i2c_ptr == NULL || i2c_msg == NULL || i2c_msg->tx_size == 0) {
         return I2C_ERR_INVALID_ARGS;
     }
+
+    // Wait bus be available
+    while(i2c_ptr->S & I2C_S_BUS_BUSY);
 
     i2c_ptr->C1 |= I2C_START; // Start
 
@@ -36,10 +39,36 @@ i2c_err_t i2c_write(I2C_p i2c_ptr, i2c_msg_t* i2c_msg) {
     while (!(i2c_ptr->S & I2C_WAIT)); // Wait Flag
     i2c_ptr->S |= I2C_WAIT; // Clear Flag
 
-    for(i = 0; i < i2c_msg->size; i++) {
-        i2c_ptr->D = i2c_msg->message[i]; // Write Data
+    for(i = 0; i < i2c_msg->tx_size; i++) {
+        i2c_ptr->D = i2c_msg->tx_data[i]; // Write Data
         while (!(i2c_ptr->S & I2C_WAIT)); // Wait
         i2c_ptr->S |= I2C_WAIT; // Clear
+    }
+
+    if (i2c_msg->read == true) {
+        i2c_ptr->C1 |= I2C_RPT_START;
+        I2C0->C1 |= 0x08; // Disable ACK
+
+        i2c_ptr->D = (i2c_msg->i2c_addr << 1) | 0x01; // Read Address
+        while (!(i2c_ptr->S & I2C_WAIT)); // Wait Flag
+        i2c_ptr->S |= I2C_WAIT; // Clear Flag
+
+        i2c_ptr->C1 &= ~I2C_RECEIVE;
+
+        i2c_msg->rx_data[0] = i2c_ptr->D;
+        while (!(i2c_ptr->S & I2C_WAIT)); // Wait
+        i2c_ptr->S |= I2C_WAIT; // Clear
+
+        for(i = 0; i < i2c_msg->rx_size-1; i++) {
+            i2c_msg->rx_data[i] = i2c_ptr->D; // Read Data
+            while (!(i2c_ptr->S & I2C_WAIT)); // Wait
+            i2c_ptr->S |= I2C_WAIT; // Clear
+        }
+
+        i2c_ptr->C1 &= I2C_STOP;
+        i2c_msg->rx_data[i] = i2c_ptr->D; // Last byte
+
+        return I2C_ERR_NO_ERROR;
     }
 
     i2c_ptr->C1 &= I2C_STOP;
