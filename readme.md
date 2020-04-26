@@ -1,3 +1,5 @@
 Projects using the FRDM KL25Z development kit.
 
-Projetos utilizando o kit de desenvolvimento FRDM KL25Z.
+**Applications** has the application projects.
+**Drivers** has the created drivers.
+
