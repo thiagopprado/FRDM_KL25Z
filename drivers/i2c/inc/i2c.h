@@ -24,6 +24,6 @@
  */
 
 i2c_err_t i2c_setup(i2c_mod_t i2c_mod, uint8_t f_divider);
-i2c_err_t i2c_write(I2C_p i2c_ptr, i2c_msg_t* i2c_msg);
+i2c_err_t i2c_transmit(I2C_p i2c_ptr, i2c_msg_t* i2c_msg);
 
 #endif /* I2C_H */

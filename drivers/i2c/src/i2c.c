@@ -23,7 +23,7 @@ i2c_err_t i2c_setup(i2c_mod_t i2c_mod, uint8_t f_divider) {
     return I2C_ERR_NO_ERROR;
 }
 
-i2c_err_t i2c_write(I2C_p i2c_ptr, i2c_msg_t* i2c_msg) {
+i2c_err_t i2c_transmit(I2C_p i2c_ptr, i2c_msg_t* i2c_msg) {
     uint8_t i = 0;
 
     if (i2c_ptr == NULL || i2c_msg == NULL || i2c_msg->tx_size == 0) {
