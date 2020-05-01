@@ -32,7 +32,7 @@ lcd_i2c_err_t lcd_i2c_init (uint8_t i2c_addr, I2C_p i2c_p) {
     }
 
     msg = LCD_I2C_L; // Only Backlight ON
-    i2c_err = i2c_write(i2c_ptr, &lcd_i2c_msg);
+    i2c_err = i2c_transmit(i2c_ptr, &lcd_i2c_msg);
     if (i2c_err != I2C_ERR_NO_ERROR) {
         return LCD_I2C_ERR_TRX_FAIL;
     }
@@ -128,13 +128,13 @@ static inline lcd_i2c_err_t lcd_i2c_pulse(uint8_t data) {
 
     // Write Data + LED ON
     msg = data | LCD_I2C_L;
-    i2c_err = i2c_write(i2c_ptr, &lcd_i2c_msg);
+    i2c_err = i2c_transmit(i2c_ptr, &lcd_i2c_msg);
     if (i2c_err != I2C_ERR_NO_ERROR) {
         return LCD_I2C_ERR_TRX_FAIL;
     }
 
     msg |= LCD_I2C_E; // Enable Pulse
-    i2c_err = i2c_write(i2c_ptr, &lcd_i2c_msg);
+    i2c_err = i2c_transmit(i2c_ptr, &lcd_i2c_msg);
     if (i2c_err != I2C_ERR_NO_ERROR) {
         return LCD_I2C_ERR_TRX_FAIL;
     }
@@ -143,7 +143,7 @@ static inline lcd_i2c_err_t lcd_i2c_pulse(uint8_t data) {
 
     // Write Data + LED ON
     msg = data | LCD_I2C_L;
-    i2c_err = i2c_write(i2c_ptr, &lcd_i2c_msg);
+    i2c_err = i2c_transmit(i2c_ptr, &lcd_i2c_msg);
     if (i2c_err != I2C_ERR_NO_ERROR) {
         return LCD_I2C_ERR_TRX_FAIL;
     }
