@@ -1,0 +1,4 @@
+tpm.c:4:11:tpm_init	32	static
+tpm.c:39:6:tpm_set_val	16	static
+tpm.c:45:13:tpm_clear_flag	16	static
+tpm.c:49:13:tpm_wait	16	static

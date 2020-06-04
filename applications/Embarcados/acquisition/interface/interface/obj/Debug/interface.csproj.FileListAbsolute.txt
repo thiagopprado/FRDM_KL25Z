@@ -1,0 +1,9 @@
+F:\Bibliotecas\Documentos\Repositorios\KL25Z\App\Embarcados\Acquisition\interface\interface\bin\Debug\@interface.exe.config
+F:\Bibliotecas\Documentos\Repositorios\KL25Z\App\Embarcados\Acquisition\interface\interface\bin\Debug\@interface.exe
+F:\Bibliotecas\Documentos\Repositorios\KL25Z\App\Embarcados\Acquisition\interface\interface\bin\Debug\@interface.pdb
+F:\Bibliotecas\Documentos\Repositorios\KL25Z\App\Embarcados\Acquisition\interface\interface\obj\Debug\interface.csprojResolveAssemblyReference.cache
+F:\Bibliotecas\Documentos\Repositorios\KL25Z\App\Embarcados\Acquisition\interface\interface\obj\Debug\interface.Form1.resources
+F:\Bibliotecas\Documentos\Repositorios\KL25Z\App\Embarcados\Acquisition\interface\interface\obj\Debug\interface.Properties.Resources.resources
+F:\Bibliotecas\Documentos\Repositorios\KL25Z\App\Embarcados\Acquisition\interface\interface\obj\Debug\interface.csproj.GenerateResource.Cache
+F:\Bibliotecas\Documentos\Repositorios\KL25Z\App\Embarcados\Acquisition\interface\interface\obj\Debug\@interface.exe
+F:\Bibliotecas\Documentos\Repositorios\KL25Z\App\Embarcados\Acquisition\interface\interface\obj\Debug\@interface.pdb

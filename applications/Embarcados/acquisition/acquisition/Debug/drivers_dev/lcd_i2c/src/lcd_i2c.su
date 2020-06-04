@@ -1,0 +1,6 @@
+lcd_i2c.c:14:15:lcd_i2c_init	32	static
+lcd_i2c.c:102:15:lcd_i2c_cmd	32	static
+lcd_i2c.c:114:15:lcd_i2c_data	32	static
+lcd_i2c.c:125:29:lcd_i2c_pulse	32	static
+lcd_i2c.c:159:20:delay_5ms	16	static
+lcd_i2c.c:166:20:delay_10us	16	static

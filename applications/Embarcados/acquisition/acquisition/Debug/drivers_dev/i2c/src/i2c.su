@@ -1,0 +1,2 @@
+i2c.c:4:11:i2c_setup	24	static
+i2c.c:26:11:i2c_transmit	24	static

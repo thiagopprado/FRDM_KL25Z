@@ -1,0 +1,7 @@
+gpio.c:4:12:gpio_init	16	static
+gpio.c:29:12:gpio_mode	32	static
+gpio.c:87:12:gpio_write	16	static
+gpio.c:106:13:gpio_set	16	static
+gpio.c:110:13:gpio_clear	16	static
+gpio.c:114:13:gpio_toggle	16	static
+gpio.c:118:21:gpio_read	16	static

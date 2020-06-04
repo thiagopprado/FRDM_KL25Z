@@ -1,0 +1,4 @@
+fsl_common.h:265:24:DisableGlobalIRQ	16	static
+fsl_common.h:292:20:EnableGlobalIRQ	24	static
+assert.h:28:6:__assertion_failed	16	static
+fsl_common.c:70:10:InstallIRQHandler	32	static
